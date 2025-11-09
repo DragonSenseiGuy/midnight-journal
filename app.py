@@ -1,11 +1,14 @@
+import os
 from textual import events
 from textual.app import App, ComposeResult
-from textual.containers import Container
+from textual.containers import Container, Center, Vertical
 from textual.message import Message
-from textual.widgets import Label, TextArea
+from textual.widgets import Label, TextArea, Markdown
 
 from screens import WelcomeScreen
 
+DATA_DIR = "data"
+JOURNAL_FILE = os.path.join(DATA_DIR, "journal.md")
 
 class JournalInput(TextArea):
     class Submitted(Message):
@@ -16,6 +19,7 @@ class JournalInput(TextArea):
     def _on_key(self, event: events.Key) -> None:
         self.app.log(f"Key event: {event!r}")
         if event.key == "shift+enter":
+            self.styles.height = self.styles.height.value + 1
             self.replace("\n", self.selection.start, self.selection.end)
             event.prevent_default()
             return
@@ -40,6 +44,8 @@ class MidnightJournal(App):
 
     #output-container{
       padding-left: 1;
+      overflow-y: scroll;
+      height: 1fr;
     }
 
     .wrapped_label {
@@ -47,29 +53,63 @@ class MidnightJournal(App):
       width: 100%;
       height: auto;
     }
+    #start_button {
+      background: #5E1F1F;
+      border: solid #5E1F1F;
+      width: auto;
+    }
+    Screen {
+        align: center middle;
+    }
     """
 
     def on_mount(self) -> None:
-        self.screen.styles.background = "maroon"
+        self.screen.styles.background = "red 30%"
         self.push_screen(WelcomeScreen())
+        
+        # Create data directory if it doesn't exist
+        os.makedirs(DATA_DIR, exist_ok=True)
+        
+        # Load existing journal entries
+        if os.path.exists(JOURNAL_FILE):
+            with open(JOURNAL_FILE, "r") as f:
+                content = f.read()
+                output_container = self.query_one("#output-container")
+                entries = content.split("\n\n")
+                for entry in entries:
+                    if entry:
+                        output_container.mount(Markdown(entry, classes="wrapped_label"))
+                output_container.scroll_end(animate=False)
+
 
     def compose(self) -> ComposeResult:
-        yield Container(id="output-container")
-        yield JournalInput(placeholder="Your thoughts here...", id="journal_input")
+        yield Vertical(
+            Container(id="output-container"),
+            JournalInput(placeholder="Your thoughts here...", id="journal_input")
+        )
 
     def on_journal_input_submitted(self, event: JournalInput.Submitted) -> None:
           journal_input = event.value
           self.log(f"User entered: {journal_input}")
+          
+          # Save to file
+          with open(JOURNAL_FILE, "a") as f:
+              f.write(journal_input + "\n\n")
+              
           output_container = self.query_one("#output-container")
 
-          # Create new label from input text
-          new_label = Label(journal_input, classes="wrapped_label")
+          # Create new Markdown widget from input text
+          new_label = Markdown(journal_input, classes="wrapped_label")
 
           # Mount Label to the end of container
           output_container.mount(new_label)
 
           # Clear the input field
           self.query_one("#journal_input", JournalInput).text = ""
+          # Reset the height of the input field
+          self.query_one("#journal_input", JournalInput).styles.height = 3
+          # Scroll to the end of the output container
+          output_container.scroll_end(animate=True)
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@ class WelcomeScreen(Screen):
         gradient_colors = []
         # Interpolate between each pair of colors
         for i in range(len(base_colors) - 1):
-            gradient_colors.extend(interpolate_colors(base_colors[i], base_colors[i+1], 67))
+            gradient_colors.extend(interpolate_colors(base_colors[i], base_colors[i+1], 20))
 
         for y, line in enumerate(lines):
             for x, char in enumerate(line):
