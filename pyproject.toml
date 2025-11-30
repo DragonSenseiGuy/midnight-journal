@@ -8,3 +8,5 @@ dependencies = [
     "textual>=6.5.0",
     "rich>=13.0.0",
 ]
+[project.scripts]
+midnight_journal = "midnight_journal.entry_points:midnight_journal"
