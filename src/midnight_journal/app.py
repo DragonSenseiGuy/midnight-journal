@@ -7,7 +7,7 @@ from textual.widgets import Label, TextArea, Markdown
 
 from screens import WelcomeScreen
 
-DATA_DIR = "data"
+DATA_DIR = "../../data"
 JOURNAL_FILE = os.path.join(DATA_DIR, "journal.md")
 
 class JournalInput(TextArea):
