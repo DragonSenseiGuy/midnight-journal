@@ -10,7 +10,7 @@ A simple TUI Journal for [Midnight](https://midnight.hackclub.com)
 - Auto scroll
 
 # Install
-You can create a virtual environment if yould like but first run `pip install midnight-journal` and then run `midnight_journal` and it will start!
+You can create a virtual environment if you'd like but first run `pip install midnight-journal` and then run `midnight_journal` and it will start!
 
 ## Setup(macOS)
 
